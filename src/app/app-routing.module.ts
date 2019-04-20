@@ -2,19 +2,15 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full'
+  { 
+    path: '', 
+    loadChildren: './delivery/delivery.module#DeliveryPageModule'
   },
-  {
-    path: 'home',
-    loadChildren: './home/home.module#HomePageModule'
+  { 
+    path: 'delivery', 
+    loadChildren: './delivery/delivery.module#DeliveryPageModule'
   },
-  {
-    path: 'list',
-    loadChildren: './list/list.module#ListPageModule'
-  }
+  { path: 'order-detail', loadChildren: './order-detail/order-detail.module#OrderDetailPageModule' }
 ];
 
 @NgModule({
@@ -23,4 +19,4 @@ const routes: Routes = [
   ],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

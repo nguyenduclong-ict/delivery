@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Chi tiết đơn hàng
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="onBtnBackClick()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-label text-wrap>
+        <ion-text>
+          <p>Đơn hàng</p>
+        </ion-text>
+        <p>{{data.donHang}}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <ion-text>
+          <p>Trạng thái</p>
+        </ion-text>
+        <p>{{data.status}}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <ion-text>
+          <p>Hàng giao</p>
+        </ion-text>
+        <p>{{data.hangGiao}}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <ion-text>
+          <p>Ngày giao</p>
+        </ion-text>
+        <p>{{data.ngayGiaoHang}}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <ion-text>
+          <p>Loại giao hàng</p>
+        </ion-text>
+        <p>{{data.loaiGiaoHang}}</p>
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+</ion-content>
