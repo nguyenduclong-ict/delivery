@@ -12,7 +12,6 @@
         <ion-icon slot="icon-only" name="refresh"></ion-icon>
       </ion-button>
     </ion-buttons>
-    
   </ion-toolbar>
 </ion-header>
 <ion-content>
@@ -20,37 +19,45 @@
     <!-- Chọn shipper -->
     <ion-item>
       <ion-label>Shipper</ion-label>
-      <ion-select #Shipper [(ngModel)]="shipperNid"(ionChange)="shipperChange($event)" placeholder="Chọn shipper">
-        <ion-select-option *ngFor="let item of shippers" [value]="item.nid">{{item.title}}</ion-select-option>
+      <ion-select (ionChange)="shipperChange($event)" placeholder="Chọn shipper">
+        <ion-select-option *ngFor="let item of shippers" [value]="item.nid">{{ item.title }}</ion-select-option>
       </ion-select>
     </ion-item>
 
-    <!-- Chọn chuyến -->
     <ion-item>
-      <ion-label>Chuyến</ion-label>
-      <ion-select #Router [(ngModel)]="routerNid" (ionChange)="routerChange($event)"  placeholder="Chọn chuyến">
-        <ion-select-option *ngFor="let item of routers"  [value]="item.nid"> {{ item.title }}</ion-select-option>
-      </ion-select>
+      <ion-label position="floating">Ngày</ion-label>
+      <ion-datetime
+        display-format="DD-MM-YYYY"
+        [(ngModel)]="date"
+        (ionChange)="getOrderOfShipper(shipperNid)"
+        placeholder="Chọn ngày"
+      ></ion-datetime>
     </ion-item>
   </ion-list>
 
   <!-- Danh sách đơn hàng -->
-  <ion-list #listOrder>
+  <ion-list>
     <ion-list-header>
       Danh sách đơn hàng
     </ion-list-header>
-    <ion-item *ngFor="let item of orders" (click)="onOrderClick(item)">
-      <ion-label> {{ item.title }}</ion-label>
-      <ion-icon *ngIf="checkStatus(item.status) == 0" name="arrow-down"></ion-icon>
-      <ion-icon *ngIf="checkStatus(item.status) == 1" name="bicycle"></ion-icon>
-      <ion-icon *ngIf="checkStatus(item.status) == 2" name="checkmark-circle"></ion-icon>
+    <ion-item *ngFor="let item of orders" (click)="showOrderDetail(item)">
+      <ion-label>
+        <h5>{{ item.title }}</h5>
+        <p>Trạng thái : {{ item.status }}</p>
+        <ion-button *ngIf="getStatusCode(item.status) == 10" (click)="nhanDon(item);$event.stopPropagation();">
+          <ion-icon slot="start" name="arrow-down"></ion-icon>
+          nhận
+        </ion-button>
+        <ion-button color="warning" *ngIf="getStatusCode(item.status) == 14" (click)="traDon(item);$event.stopPropagation();">
+          <ion-icon slot="start" name="remove-circle"></ion-icon>
+          trả
+        </ion-button>
+
+        <ion-button color="success" *ngIf="getStatusCode(item.status) == 14" (click)="xacNhanDaGiao(item);$event.stopPropagation();">
+          <ion-icon slot="start" name="checkmark"></ion-icon>
+          xong
+        </ion-button>
+      </ion-label>
     </ion-item>
   </ion-list>
-
 </ion-content>
-
-<ion-footer no-border>
-  <ion-toolbar transparent>
-      <ion-button (click)="showCurrentOrder()" expand="full">Xem đơn hàng đang giao</ion-button>
-  </ion-toolbar>
-</ion-footer>

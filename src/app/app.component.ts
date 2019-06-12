@@ -14,6 +14,11 @@ export class AppComponent {
       title: 'Giao hàng',
       url: '/delivery',
       icon: 'car'
+    },
+    {
+      title: 'Đơn hàng chưa nhận',
+      url: '/delivery-free',
+      icon: 'list'
     }
   ];
 
