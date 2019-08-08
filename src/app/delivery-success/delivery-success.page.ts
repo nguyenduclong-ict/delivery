@@ -8,18 +8,17 @@ import {
 import { OrderDetailPage } from "../order-detail/order-detail.page";
 import { ConfigService } from "../services/config.service";
 import { GlobalVariablesService } from "../services/global-variables.service";
-import { BroadcastService } from "../services/broadcast.service";
-import { ChanelService } from "../services/chanel.service";
 import { ResApiService } from "../services/res-api.service";
 var dateFormat = require("dateformat");
+
 @Component({
-  selector: "app-delivery-free",
-  templateUrl: "./delivery-free.page.html",
-  styleUrls: ["./delivery-free.page.scss"]
+  selector: "app-delivery-success",
+  templateUrl: "./delivery-success.page.html",
+  styleUrls: ["./delivery-success.page.scss"]
 })
-export class DeliveryFreePage implements OnInit {
+export class DeliverySuccessPage implements OnInit {
   urlListShipper;
-  urlListOrderFree;
+  urlListOrderSuccess;
   urlChangeOrderStatus;
 
   options = {
@@ -34,13 +33,11 @@ export class DeliveryFreePage implements OnInit {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
     private config: ConfigService,
-    private broadcast: BroadcastService,
-    private chanel: ChanelService,
     private globalVariables: GlobalVariablesService,
     private mhttp: ResApiService
   ) {
     this.urlChangeOrderStatus = this.config.urlChangeOrderStatus;
-    this.urlListOrderFree = this.config.urlListOrderFree;
+    this.urlListOrderSuccess = this.config.urlListOrderSuccess;
     this.urlListShipper = this.config.urlListShipper;
     this.date = dateFormat(new Date(), "yyyy-mm-dd");
   }
@@ -49,25 +46,22 @@ export class DeliveryFreePage implements OnInit {
   routers: any[] = [];
   orders: any[] = [];
   date: any;
-  shipperNid;
+  shipperNid: any = "";
   orderNid: any = "";
-  location = {
-    lat: 0,
-    lng: 0
-  };
+  location = { lat: 0, lng: 0 };
   // Lay danh sach shipper
   getListShipper() {
     this.mhttp.getWithCache(this.urlListShipper, this.options, response => {
       this.shippers = response.nodes;
+      this.shippers.push({ title: "Tất cả", nid: "all" });
     });
   }
   // Lay danh sach don hang
-  getListOrdersFree() {
+  getListOrdersSuccess() {
     let date = dateFormat(this.date, "yyyy-mm-dd");
-    let url = `${this.urlListOrderFree}/${date}`;
+    let url = `${this.urlListOrderSuccess}/${this.shipperNid}/${date}`;
     this.http.get(url).subscribe((data: any) => {
       this.orders = data.nodes;
-      console.log(data.nodes);
     });
   }
 
@@ -82,7 +76,7 @@ export class DeliveryFreePage implements OnInit {
 
   ngOnInit() {
     this.getListShipper();
-    this.getListOrdersFree();
+    this.getListOrdersSuccess();
     this.initialize();
   }
 
@@ -91,32 +85,24 @@ export class DeliveryFreePage implements OnInit {
     this.shipperNid = await this.globalVariables.getShipperNid();
   }
 
+  //
   shipperChange(event) {
     if (!event.target.value) return;
     let shipperNid = event.target.value;
-    this.broadcast.pushMessage(this.chanel.GLOBAL_VARIABLES_CHANEL, {
-      action: "CHANGE_SHIPPER_NID",
-      data: shipperNid
-    });
+    this.shipperNid = shipperNid;
   }
 
+  //
   async showOrderDetail(order) {
     const modal = await this.modalCtrl.create({
       component: OrderDetailPage,
-      componentProps: {
-        order: order
-      }
+      componentProps: { order: order }
     });
     modal.present();
   }
 
   // Nhận đơn hàng
-  async onClickNhanDon(item) {
-    let shipperNid = await this.globalVariables.getShipperNid();
-    if (!shipperNid) {
-      this.presentAlert("Vui lòng chọn shipper!", ["CLOSE"]);
-      return;
-    }
+  onClickNhanDon(item) {
     this.presentAlert("Nhận đơn này?", [
       {
         text: "Nhận",
@@ -125,15 +111,18 @@ export class DeliveryFreePage implements OnInit {
       },
       "Hủy"
     ]);
+    if (!this.shipperNid) {
+      this.presentAlert("Vui lòng chọn shipper!", ["CLOSE"]);
+      return;
+    }
   }
 
-  putNhanDon = async function(item) {
-    let shipperNid = await this.globalVariables.getShipperNid();
+  putNhanDon = function(item) {
     // Data put
     let data = {
       status: this.globalVariables.orderStatusList.RECIVED.tid,
       nid: item.nid,
-      shipperNid: shipperNid
+      shipperNid: this.shipperNid
     };
     this.mhttp
       .put(this.urlChangeOrderStatus, JSON.stringify(data), this.options)

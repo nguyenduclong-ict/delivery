@@ -8,7 +8,8 @@
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content>
+
+<ion-card>
   <ion-list>
     <!-- Chọn shipper -->
     <ion-item>
@@ -29,7 +30,7 @@
       </ion-col>
     </ion-item>
 
-    <ion-item>
+    <ion-item lines="none">
       <ion-label position="floating">Ngày</ion-label>
       <ion-datetime
         display-format="DD-MM-YYYY"
@@ -39,7 +40,9 @@
       ></ion-datetime>
     </ion-item>
   </ion-list>
+</ion-card>
 
+<ion-content>
   <!-- Danh sách đơn hàng -->
   <ion-list>
     <ion-list-header>
@@ -48,30 +51,22 @@
     <ion-item *ngFor="let item of orders" (click)="showOrderDetail(item)">
       <ion-label>
         <h5>{{ item.title }}</h5>
-        <p>Trạng thái : {{ item.status }}</p>
-        <ion-button
-          *ngIf="getStatusCode(item.status) == 10"
-          (click)="nhanDon(item); $event.stopPropagation()"
-        >
-          <ion-icon slot="start" name="arrow-down"></ion-icon>
-          nhận
-        </ion-button>
-        <ion-button
-          color="warning"
-          *ngIf="getStatusCode(item.status) == 14"
-          (click)="traDon(item); $event.stopPropagation()"
-        >
-          <ion-icon slot="start" name="remove-circle"></ion-icon>
-          trả
+        <p><strong>Trạng thái :</strong> {{ item.field_delivery_status }}</p>
+        <p><strong>Ngày giao :</strong> {{ item.field_delivery_date }}</p>
+        <p><strong>Giao cho :</strong> {{ item.nha_hang.title }}</p>
+        <p><strong>Mặt hàng :</strong></p>
+        <p *ngFor="let hangGiao of item.hang_giao" style="padding-left: 10px;">
+          * {{ hangGiao.name }}, số lượng : {{ hangGiao.delivery_quantity }}
+          {{ hangGiao.field_product_unit }}
+        </p>
+
+        <ion-button (click)="onGiaoDonClick(item); $event.stopPropagation()">
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon> xác nhận
+          giao
         </ion-button>
 
-        <ion-button
-          color="success"
-          *ngIf="getStatusCode(item.status) == 14"
-          (click)="xacNhanDaGiao(item); $event.stopPropagation()"
-        >
-          <ion-icon slot="start" name="checkmark"></ion-icon>
-          xong
+        <ion-button (click)="onTraDonClick(item); $event.stopPropagation()">
+          <ion-icon slot="start" name="close"></ion-icon> trả đơn
         </ion-button>
       </ion-label>
     </ion-item>

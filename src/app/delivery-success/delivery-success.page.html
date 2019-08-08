@@ -1,13 +1,14 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Nhận đơn hàng
+      Đơn hàng đã giao
     </ion-title>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
+
 <ion-card>
   <ion-list>
     <!-- Chọn shipper -->
@@ -34,7 +35,7 @@
       <ion-datetime
         display-format="DD-MM-YYYY"
         [(ngModel)]="date"
-        (ionChange)="getListOrdersFree()"
+        (ionChange)="getListOrdersSuccess()"
         placeholder="Chọn ngày"
       ></ion-datetime>
     </ion-item>
@@ -58,9 +59,6 @@
           * {{ hangGiao.name }}, số lượng : {{ hangGiao.delivery_quantity }}
           {{ hangGiao.field_product_unit }}
         </p>
-        <ion-button (click)="onClickNhanDon(item); $event.stopPropagation()">
-          <ion-icon slot="start" name="arrow-down"></ion-icon> nhận
-        </ion-button>
       </ion-label>
     </ion-item>
   </ion-list>

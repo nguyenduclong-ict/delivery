@@ -5,6 +5,7 @@ import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 import { ConfigService } from "./services/config.service";
 import { GlobalVariablesService } from "./services/global-variables.service";
+import { MqttClientService } from "./services/mqtt-client.service";
 
 @Component({
   selector: "app-root",
@@ -25,7 +26,7 @@ export class AppComponent {
     {
       title: "Đơn đã giao",
       url: "/delivery-success",
-      icon: "list"
+      icon: "list-box"
     }
   ];
 
@@ -33,7 +34,8 @@ export class AppComponent {
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
-    private globalVaribles: GlobalVariablesService
+    private globalVaribles: GlobalVariablesService,
+    private mqttClient: MqttClientService
   ) {
     this.initializeApp();
   }
@@ -43,6 +45,7 @@ export class AppComponent {
       this.globalVaribles.initialize();
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.mqttClient.startMqttOnline();
     });
   }
 }

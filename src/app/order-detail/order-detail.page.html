@@ -18,7 +18,16 @@
         <ion-text>
           <p>Đơn hàng</p>
         </ion-text>
-        <p>{{data.donHang}}</p>
+        <p>{{ data.title }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.field_delivery_shippers">
+      <ion-label>
+        <ion-text>
+          <p>Shipper</p>
+        </ion-text>
+        <p>{{ data.field_delivery_shippers }}</p>
       </ion-label>
     </ion-item>
 
@@ -27,16 +36,7 @@
         <ion-text>
           <p>Trạng thái</p>
         </ion-text>
-        <p>{{data.status}}</p>
-      </ion-label>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>
-        <ion-text>
-          <p>Hàng giao</p>
-        </ion-text>
-        <p>{{data.hangGiao}}</p>
+        <p>{{ data.field_delivery_status }}</p>
       </ion-label>
     </ion-item>
 
@@ -45,18 +45,20 @@
         <ion-text>
           <p>Ngày giao</p>
         </ion-text>
-        <p>{{data.ngayGiaoHang}}</p>
+        <p>{{ data.field_delivery_date }}</p>
       </ion-label>
     </ion-item>
 
     <ion-item>
       <ion-label>
         <ion-text>
-          <p>Loại giao hàng</p>
+          <p>Hàng giao</p>
         </ion-text>
-        <p>{{data.loaiGiaoHang}}</p>
+        <p *ngFor="let hangGiao of data.hang_giao" style="padding-left: 10px;">
+          * {{ hangGiao.name }}, số lượng : {{ hangGiao.delivery_quantity }}
+          {{ hangGiao.field_product_unit }}
+        </p>
       </ion-label>
     </ion-item>
-
   </ion-list>
 </ion-content>

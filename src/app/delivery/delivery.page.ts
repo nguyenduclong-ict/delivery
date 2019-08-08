@@ -1,7 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Geolocation } from "@ionic-native/geolocation/ngx";
-import { IMqttMessage, MqttService } from "ngx-mqtt";
 import {
   AlertController,
   ModalController,
@@ -43,9 +41,7 @@ export class DeliveryPage implements OnInit {
   };
 
   constructor(
-    private geolocation: Geolocation,
     private http: HttpClient,
-    private _mqttService: MqttService,
     private alertController: AlertController,
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
@@ -60,28 +56,6 @@ export class DeliveryPage implements OnInit {
     this.urlChangeOrderStatus = this.config.urlChangeOrderStatus;
 
     this.date = dateFormat(new Date(), "yyyy-mm-dd");
-    //
-    setInterval(() => {
-      this.geolocation.getCurrentPosition().then(response => {
-        this.location.lat = response.coords.latitude;
-        this.location.lng = response.coords.longitude;
-      });
-
-      if (!this.shipperNid) return;
-      console.log(this.location);
-
-      let data: any = {
-        shipperNid: this.shipperNid,
-        orders: this.orders,
-        location: this.location
-      };
-      data = JSON.stringify(data);
-      console.log(data);
-      this._mqttService.unsafePublish("/delivery", data, {
-        qos: 2,
-        retain: false
-      });
-    }, 5000);
   }
 
   // Lay danh sach shipper
@@ -112,11 +86,11 @@ export class DeliveryPage implements OnInit {
   }
 
   ngOnInit() {
-    this.getListShipper();
     this.initialize();
   }
 
   async initialize() {
+    this.getListShipper();
     this.shipperNid = await this.globalVariables.getShipperNid();
     this.getListOrderOfShipper();
   }
@@ -132,28 +106,6 @@ export class DeliveryPage implements OnInit {
     this.getListOrderOfShipper();
   }
 
-  getStatusCode(status) {
-    switch (status) {
-      case "Lưu tạm":
-        return 10;
-      case "Ship đã nhận":
-        return 14;
-      case "Đã giao":
-        return 15;
-    }
-  }
-
-  getStatus(code) {
-    switch (code) {
-      case 10:
-        return "Lưu tạm";
-      case 14:
-        return "Ship đã nhận";
-      case 15:
-        return "Đã giao";
-    }
-  }
-
   async showOrderDetail(order) {
     const modal = await this.modalCtrl.create({
       component: OrderDetailPage,
@@ -164,104 +116,17 @@ export class DeliveryPage implements OnInit {
     modal.present();
   }
 
-  nhanDon(item) {
-    let data = JSON.stringify({
-      status: this.getStatusCode("Ship đã nhận"),
-      nid: item.nid
-    });
-    console.log(data);
-    this.http
-      .post(this.urlChangeOrderStatus, data, this.options)
-      .toPromise()
-      .then((result: any) => {
-        if (result.success) {
-          // Thành công
-          this.orders.map(e => {
-            if (e.nid === item.nid) e.status = this.getStatus(result.newStatus);
-            return e;
-          });
-          this.orders = [...this.orders];
-          this.presentToast("Thành công!", "toast-success");
-          this.mqttShipperChangeOrder();
-        } else {
-          // Thất bại
-          this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-        }
-      })
-      .catch((err: Error) => {
-        console.log(err);
-        this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-      });
-  }
-  mqttShipperChangeOrder() {
-    this._mqttService.unsafePublish(
-      "/order-change",
-      JSON.stringify({ id: this.shipperNid }),
-      {
-        qos: 2,
-        retain: false
-      }
-    );
-  }
-  traDon(item) {
-    let data = JSON.stringify({
-      status: this.getStatusCode("Lưu tạm"),
-      nid: item.nid
-    });
+  // Event button giao don click
+  onGiaoDonClick() {}
 
-    console.log(data);
-    this.http
-      .post(this.urlChangeOrderStatus, data, this.options)
-      .toPromise()
-      .then((result: any) => {
-        if (result.success) {
-          // Thành công
-          this.orders = this.orders.filter(e => {
-            if (e.nid !== item.nid) return e;
-          });
-          this.presentToast("Thành công!", "toast-success");
-          this.mqttShipperChangeOrder();
-        } else {
-          // Thất bại
-          this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-        }
-      })
-      .catch((err: Error) => {
-        console.log(err);
-        this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-      });
-  }
+  // Event button tra don click
+  onTraDonClick() {}
 
-  xacNhanDaGiao(item) {
-    let data = JSON.stringify({
-      status: this.getStatusCode("Đã giao"),
-      nid: item.nid
-    });
+  // put giao don to server
+  putGiaoDon() {}
 
-    console.log(data);
-    this.http
-      .post(this.urlChangeOrderStatus, data, this.options)
-      .toPromise()
-      .then((result: any) => {
-        if (result.success) {
-          // Thành công
-          this.orders.map(e => {
-            if (e.nid === item.nid) e.status = this.getStatus(result.newStatus);
-            return e;
-          });
-          this.orders = [...this.orders];
-          this.presentToast("Thành công!", "toast-success");
-          this.mqttShipperChangeOrder();
-        } else {
-          // Thất bại
-          this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-        }
-      })
-      .catch((err: Error) => {
-        console.log(err);
-        this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
-      });
-  }
+  // put tra don to server
+  putTraDon() {}
 
   async presentAlert(message, buttons) {
     let alert = await this.alertController.create({

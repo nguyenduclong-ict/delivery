@@ -11,7 +11,8 @@ const routes: Routes = [
     loadChildren: './delivery/delivery.module#DeliveryPageModule'
   },
   { path: 'order-detail', loadChildren: './order-detail/order-detail.module#OrderDetailPageModule' },
-  { path: 'delivery-free', loadChildren: './delivery-free/delivery-free.module#DeliveryFreePageModule' }
+  { path: 'delivery-free', loadChildren: './delivery-free/delivery-free.module#DeliveryFreePageModule' },
+  { path: 'delivery-success', loadChildren: './delivery-success/delivery-success.module#DeliverySuccessPageModule' }
 ];
 
 @NgModule({

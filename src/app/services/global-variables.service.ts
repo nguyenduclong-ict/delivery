@@ -11,8 +11,24 @@ import { Storage } from "@ionic/storage";
 export class GlobalVariablesService {
   // props
   shipperNid;
-  listShipper = [];
-  listNhaHang = [];
+  orderStatusList = {
+    ERROR: {
+      tid: 16,
+      text: "Lỗi"
+    },
+    SUCCESS: {
+      tid: 15,
+      text: "Đã giao"
+    },
+    PENDING: {
+      tid: 10,
+      text: "Lưu tạm"
+    },
+    RECIVED: {
+      tid: 14,
+      text: "Ship đã nhận"
+    }
+  };
 
   constructor(
     private config: ConfigService,
@@ -45,12 +61,10 @@ export class GlobalVariablesService {
   }
 
   async getShipperNid() {
-    console.log("GET shipper NID in global-variables", this.shipperNid);
     if (this.shipperNid) return this.shipperNid;
     return new Promise(resolve => {
       let key = this.config.appName + "-" + "SHIPPER_NID";
       this.storage.get(key).then(nid => {
-        console.log("shipperNID save in localstorage", nid);
         this.shipperNid = nid;
         resolve(nid);
       });
