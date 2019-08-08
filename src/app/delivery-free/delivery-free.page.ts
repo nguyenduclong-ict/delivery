@@ -2,8 +2,17 @@ import { Component, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Geolocation } from "@ionic-native/geolocation/ngx";
 import { IMqttMessage, MqttService } from "ngx-mqtt";
-import { AlertController, ModalController, ToastController } from "@ionic/angular";
+import {
+  AlertController,
+  ModalController,
+  ToastController
+} from "@ionic/angular";
 import { OrderDetailPage } from "../order-detail/order-detail.page";
+import { ConfigService } from "../services/config.service";
+import { GlobalVariablesService } from "../services/global-variables.service";
+import { BroadcastService } from "../services/broadcast.service";
+import { ChanelService } from "../services/chanel.service";
+import { ResApiService } from "../services/res-api.service";
 var dateFormat = require("dateformat");
 @Component({
   selector: "app-delivery-free",
@@ -11,9 +20,9 @@ var dateFormat = require("dateformat");
   styleUrls: ["./delivery-free.page.scss"]
 })
 export class DeliveryFreePage implements OnInit {
-  urlListShipper = "https://po.chuyengiaso.com/api/list-shipper";
-  urlListOrder = "https://po.chuyengiaso.com/api/orders-free";
-  urlChangeOrderStatus = "https://po.chuyengiaso.com/api/change-order-status";
+  urlListShipper;
+  urlListOrderFree;
+  urlChangeOrderStatus;
 
   options = {
     headers: {
@@ -27,8 +36,19 @@ export class DeliveryFreePage implements OnInit {
     private _mqttService: MqttService,
     private alertController: AlertController,
     private modalCtrl: ModalController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private config: ConfigService,
+    private broadcast: BroadcastService,
+    private chanel: ChanelService,
+    private globalVariables: GlobalVariablesService,
+    private mhttp: ResApiService
   ) {
+    this.urlChangeOrderStatus = this.config.urlChangeOrderStatus;
+    this.urlListOrderFree = this.config.urlListOrderFree;
+    this.urlListShipper = this.config.urlListShipper;
+
+    this.date = dateFormat(new Date(), "yyyy-mm-dd");
+
     setInterval(() => {
       this.geolocation.getCurrentPosition().then(response => {
         this.location.lat = response.coords.latitude;
@@ -54,7 +74,7 @@ export class DeliveryFreePage implements OnInit {
   shippers: any[] = [];
   routers: any[] = [];
   orders: any[] = [];
-  date: Date = new Date();
+  date: any;
   shipperNid: any = "";
   orderNid: any = "";
   location = {
@@ -63,17 +83,16 @@ export class DeliveryFreePage implements OnInit {
   };
   // Lay danh sach shipper
   getListShipper() {
-    this.http.get(this.urlListShipper).subscribe((data: any) => {
-      this.shippers = data.nodes;
+    this.mhttp.getWithCache(this.urlListShipper, this.options, response => {
+      this.shippers = response.nodes;
     });
   }
   // Lay danh sach don hang
-  getOrders() {
+  getListOrdersFree() {
     let date = dateFormat(this.date, "yyyy-mm-dd");
-    let url = `${this.urlListOrder}/${date}`;
+    let url = `${this.urlListOrderFree}/${date}`;
     this.http.get(url).subscribe((data: any) => {
       this.orders = data.nodes;
-      console.log(data.nodes);
     });
   }
 
@@ -88,12 +107,23 @@ export class DeliveryFreePage implements OnInit {
 
   ngOnInit() {
     this.getListShipper();
+    this.getListOrdersFree();
+    this.initialize();
+  }
+
+  // initialize Page
+  async initialize() {
+    this.shipperNid = await this.globalVariables.getShipperNid();
   }
 
   shipperChange(event) {
-    console.log("shipperChange");
-    console.log(event.target.value);
-    this.shipperNid = event.target.value;
+    if (!event.target.value) return;
+    let shipperNid = event.target.value;
+    this.shipperNid = shipperNid;
+    this.broadcast.pushMessage(this.chanel.GLOBAL_VARIABLES_CHANEL, {
+      action: "CHANGE_SHIPPER_NID",
+      data: shipperNid
+    });
   }
 
   getStatusCode(status) {
@@ -129,8 +159,8 @@ export class DeliveryFreePage implements OnInit {
   }
 
   nhanDon(item) {
-    if(!this.shipperNid) {
-      this.presentAlert('Vui lòng chọn shipper!', ['CLOSE']);
+    if (!this.shipperNid) {
+      this.presentAlert("Vui lòng chọn shipper!", ["CLOSE"]);
       return;
     }
     let data = JSON.stringify({
@@ -165,16 +195,15 @@ export class DeliveryFreePage implements OnInit {
       });
   }
 
-  refreshPage() {
-    this.date = new Date();
-    this.getOrders();
-  }
-
   mqttShipperChangeOrder() {
-    this._mqttService.unsafePublish("/order-change", JSON.stringify({ id: this.shipperNid }), {
-      qos: 2,
-      retain: false
-    });
+    this._mqttService.unsafePublish(
+      "/order-change",
+      JSON.stringify({ id: this.shipperNid }),
+      {
+        qos: 2,
+        retain: false
+      }
+    );
   }
 
   async presentAlert(message, buttons = []) {

@@ -1,55 +1,62 @@
 <ion-header>
-    <ion-toolbar>
-      <ion-title>
-        Nhận đơn hàng
-      </ion-title>
-      <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-  
-      <ion-buttons slot="secondary">
-        <ion-button (click)="refreshPage()">
-          <ion-icon slot="icon-only" name="refresh"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
-  <ion-content>
-    <ion-list>
-      <!-- Chọn shipper -->
-      <ion-item>
+  <ion-toolbar>
+    <ion-title>
+      Nhận đơn hàng
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <!-- Chọn shipper -->
+    <ion-item>
+      <ion-col style="padding: 0px;">
         <ion-label>Shipper</ion-label>
-        <ion-select (ionChange)="shipperChange($event)" placeholder="Chọn shipper">
-          <ion-select-option *ngFor="let item of shippers" [value]="item.nid">{{ item.title }}</ion-select-option>
+      </ion-col>
+      <ion-col size="9">
+        <ion-select
+          (ionChange)="shipperChange($event)"
+          placeholder="Chọn shipper"
+          [value]="shipperNid"
+          style="max-width: none;"
+        >
+          <ion-select-option *ngFor="let item of shippers" [value]="item.nid">
+            {{ item.title }}
+          </ion-select-option>
         </ion-select>
-      </ion-item>
-  
-      <ion-item>
-        <ion-label position="floating">Ngày</ion-label>
-        <ion-datetime
-          display-format="DD-MM-YYYY"
-          [(ngModel)]="date"
-          (ionChange)="getOrders(shipperNid)"
-          placeholder="Chọn ngày"
-        ></ion-datetime>
-      </ion-item>
-    </ion-list>
-  
-    <!-- Danh sách đơn hàng -->
-    <ion-list>
-      <ion-list-header>
-        Danh sách đơn hàng
-      </ion-list-header>
-      <ion-item *ngFor="let item of orders" (click)="showOrderDetail(item)">
-        <ion-label>
-          <h5>{{ item.title }}</h5>
-          <p>Trạng thái : {{ item.status }}</p>
-          <ion-button *ngIf="getStatusCode(item.status) == 10" (click)="nhanDon(item);$event.stopPropagation();">
-            <ion-icon slot="start" name="arrow-down"></ion-icon>
-            nhận
-          </ion-button>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </ion-content>
-  
+      </ion-col>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Ngày</ion-label>
+      <ion-datetime
+        display-format="DD-MM-YYYY"
+        [(ngModel)]="date"
+        (ionChange)="getListOrdersFree()"
+        placeholder="Chọn ngày"
+      ></ion-datetime>
+    </ion-item>
+  </ion-list>
+
+  <!-- Danh sách đơn hàng -->
+  <ion-list>
+    <ion-list-header>
+      Danh sách đơn hàng chưa có người nhận
+    </ion-list-header>
+    <ion-item *ngFor="let item of orders" (click)="showOrderDetail(item)">
+      <ion-label>
+        <h5>{{ item.title }}</h5>
+        <p>Trạng thái : {{ item.status }}</p>
+        <ion-button
+          *ngIf="getStatusCode(item.status) == 10"
+          (click)="nhanDon(item); $event.stopPropagation()"
+        >
+          <ion-icon slot="start" name="arrow-down"></ion-icon>
+          nhận
+        </ion-button>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -9,6 +9,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { IonicStorageModule, Storage } from "@ionic/storage";
 // import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -36,7 +37,8 @@ export const MQTT_SERVICE_OPTIONS : IMqttServiceOptions = { //: MqttServiceOptio
     HttpClientModule,
     IonicModule.forRoot(),
     MqttModule.forRoot(MQTT_SERVICE_OPTIONS),
-    AppRoutingModule
+    AppRoutingModule,
+    IonicStorageModule.forRoot()
   ],
   providers: [
     StatusBar,
