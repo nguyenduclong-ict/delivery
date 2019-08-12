@@ -5,7 +5,7 @@ ionic cordova platform add android
 ionic cordova prepare android
 
 # 
-ionic cordova build android --prod --release
+ionic cordova build android --release
 echo build success ...
 #
 jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore ./baan.delivery.keystore -storepass long97 ./platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk baan.delivery
