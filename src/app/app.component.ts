@@ -44,6 +44,7 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.globalVaribles.initialize();
       this.statusBar.styleDefault();
+      this.statusBar.backgroundColorByHexString("#ffffff");
       this.splashScreen.hide();
       this.mqttClient.startMqttOnline();
     });

@@ -43,6 +43,22 @@ export class DeliveryFreePage implements OnInit {
     this.urlListOrderFree = this.config.urlListOrderFree;
     this.urlListShipper = this.config.urlListShipper;
     this.date = dateFormat(new Date(), "yyyy-mm-dd");
+    // BroadCast
+    this.broadcast.subscribe(
+      this.chanel.DELIVERY_FREE_PAGE_CHANEL,
+      this.onBroadcastReciveMessage.bind(this)
+    );
+  }
+
+  onBroadcastReciveMessage({ action, data }) {
+    console.log({ action, data });
+    switch (action) {
+      case "RELOAD_LIST":
+        this.getListOrdersFree(0, data.loading);
+        break;
+      default:
+        break;
+    }
   }
 
   shippers: any[] = [];
@@ -62,12 +78,24 @@ export class DeliveryFreePage implements OnInit {
     });
   }
   // Lay danh sach don hang
-  getListOrdersFree() {
+  async getListOrdersFree(page = 0, loading = true) {
     let date = dateFormat(this.date, "yyyy-mm-dd");
-    let url = `${this.urlListOrderFree}/${date}`;
-    this.http.get(url).subscribe((data: any) => {
-      this.orders = data.nodes;
-      console.log(data.nodes);
+    let url = `${this.urlListOrderFree}/${date}?page=${page}`;
+    console.log(url);
+    return new Promise(resolve => {
+      this.mhttp.getWithCache(
+        url,
+        this.options,
+        data => {
+          if (page == 0) this.orders = [];
+          this.orders = [...this.orders, ...data.nodes];
+          if (data.nodes.length == 0 && page != 0)
+            this.presentToast("Không còn dữ liệu");
+          resolve(true);
+        },
+        false,
+        loading
+      );
     });
   }
 
@@ -81,14 +109,14 @@ export class DeliveryFreePage implements OnInit {
   }
 
   ngOnInit() {
-    this.getListShipper();
-    this.getListOrdersFree();
     this.initialize();
   }
 
   // initialize Page
   async initialize() {
     this.shipperNid = await this.globalVariables.getShipperNid();
+    await this.getListShipper();
+    await this.getListOrdersFree();
   }
 
   shipperChange(event) {
@@ -156,6 +184,17 @@ export class DeliveryFreePage implements OnInit {
           data.shipperNid == resultShipperNid
         ) {
           this.presentToast("Đã nhận đơn hàng", "toast-success");
+          // load lại danh sách
+          let message = {
+            action: "RELOAD_LIST",
+            data: {
+              loading: false
+            }
+          };
+          this.broadcast.pushMessage(
+            this.chanel.DELIVERY_FREE_PAGE_CHANEL,
+            message
+          );
         } else {
           // Nhận đơn thất bại
           this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
@@ -174,5 +213,16 @@ export class DeliveryFreePage implements OnInit {
       buttons: buttons
     });
     alert.present();
+  }
+
+  // Infinite Scroll
+  onInfinite(event) {
+    let nextPage =
+      this.orders.length % 10 == 0
+        ? this.orders.length / 10
+        : this.orders.length / 10 + 1;
+    this.getListOrdersFree(nextPage, false).then(result => {
+      event.target.complete();
+    });
   }
 }

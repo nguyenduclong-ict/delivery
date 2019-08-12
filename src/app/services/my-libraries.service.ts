@@ -9,16 +9,16 @@ export class MyLibrariesService {
     private alertController: AlertController
   ) {}
 
-  async presentLoading({
-    message = null,
-    translucent = true,
-    duration = 30000
-  }) {
-    let loading = await this.loadingController.create({
-      duration: duration,
+  /**
+   * 
+   * @param option {
       message: message,
-      translucent: translucent
-    });
+      translucent: translucent,
+      duration
+    }
+   */
+  async presentLoading(option) {
+    let loading = await this.loadingController.create(option);
     await loading.present();
     return loading;
   }

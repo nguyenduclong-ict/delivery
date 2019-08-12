@@ -16,7 +16,7 @@ export class ResApiService {
     private storage: Storage,
     private mylib: MyLibrariesService,
     private swal: SwalService,
-    private config : ConfigService
+    private config: ConfigService
   ) {}
 
   async get(url, options?, cb?) {
@@ -25,7 +25,14 @@ export class ResApiService {
     return this.http.get(url, options).toPromise();
   }
 
-  async getWithCache(url, options?, cb?, toast = false) {
+  async getWithCache(url, options?, cb?, toast = false, showLoading = false) {
+    // show loading
+    let loading;
+    if (showLoading)
+      loading = await this.mylib.presentLoading({
+        message: "Đang cập nhật dữ liệu"
+      });
+    //
     if (!options) options = await this.authv2.getHeader();
     let cached = await this.storage.get(
       "cache-" + this.authv2.appName + "-" + url
@@ -34,17 +41,19 @@ export class ResApiService {
       let tmp = JSON.stringify(cached);
       tmp = JSON.parse(tmp);
       cb(tmp);
-      return;
     }
     try {
       let data = await this.http.get(url, options).toPromise();
       // Kiểm tra xem data mới và cũ có thay đổi không ?
       let isUpdateCache = JSON.stringify(cached) !== JSON.stringify(data);
-      console.log("get With cache " + url, {
+      console.log("get With cache ", {
+        url,
         cached,
         data,
         updateCache: isUpdateCache
       });
+      if (showLoading) loading.dismiss();
+
       /* Nếu dữ liệu mới có sự thay đổi thì cập nhật lại cache */
       if (isUpdateCache) {
         console.log("Update cache for " + url, {
@@ -61,6 +70,7 @@ export class ResApiService {
             message: "Dữ liệu được cập nhật",
             position: "top-end"
           });
+
         if (cb) cb(data);
       }
     } catch (err) {

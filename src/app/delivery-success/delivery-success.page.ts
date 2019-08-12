@@ -28,7 +28,6 @@ export class DeliverySuccessPage implements OnInit {
   };
 
   constructor(
-    private http: HttpClient,
     private alertController: AlertController,
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
@@ -53,15 +52,28 @@ export class DeliverySuccessPage implements OnInit {
   getListShipper() {
     this.mhttp.getWithCache(this.urlListShipper, this.options, response => {
       this.shippers = response.nodes;
-      this.shippers.push({ title: "Tất cả", nid: "all" });
+      this.shippers.unshift({ title: "Tất cả", nid: "all" });
     });
   }
   // Lay danh sach don hang
-  getListOrdersSuccess() {
+  async getListOrdersSuccess(page = 0, loading = true) {
     let date = dateFormat(this.date, "yyyy-mm-dd");
-    let url = `${this.urlListOrderSuccess}/${this.shipperNid}/${date}`;
-    this.http.get(url).subscribe((data: any) => {
-      this.orders = data.nodes;
+    let url =
+      this.urlListOrderSuccess + `/${this.shipperNid}/${date}?page=${page}`;
+    console.log(url);
+    return new Promise(resolve => {
+      this.mhttp.getWithCache(
+        url,
+        this.options,
+        data => {
+          if (page == 0) this.orders = [];
+          this.orders = [...this.orders, ...data.nodes];
+          if (data.nodes.length == 0) this.presentToast("Không còn dữ liệu");
+          resolve(true);
+        },
+        false,
+        loading
+      );
     });
   }
 
@@ -75,14 +87,14 @@ export class DeliverySuccessPage implements OnInit {
   }
 
   ngOnInit() {
-    this.getListShipper();
-    this.getListOrdersSuccess();
     this.initialize();
   }
 
   // initialize Page
   async initialize() {
+    await this.getListShipper();
     this.shipperNid = await this.globalVariables.getShipperNid();
+    this.getListOrdersSuccess();
   }
 
   //
@@ -90,6 +102,7 @@ export class DeliverySuccessPage implements OnInit {
     if (!event.target.value) return;
     let shipperNid = event.target.value;
     this.shipperNid = shipperNid;
+    this.getListOrdersSuccess(0);
   }
 
   //
@@ -163,5 +176,16 @@ export class DeliverySuccessPage implements OnInit {
       buttons: buttons
     });
     alert.present();
+  }
+
+  // Infinite Scroll
+  onInfinite(event) {
+    let nextPage =
+      this.orders.length % 10 == 0
+        ? this.orders.length / 10
+        : this.orders.length / 10 + 1;
+    this.getListOrdersSuccess(nextPage, false).then(result => {
+      event.target.complete();
+    });
   }
 }

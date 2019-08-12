@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { NavParams, NavController, ModalController } from "@ionic/angular";
+import { ModalController, NavParams } from "@ionic/angular";
 
 @Component({
   selector: "app-order-detail",
