@@ -7,15 +7,18 @@ import { ModalController, NavParams } from "@ionic/angular";
   styleUrls: ["./order-detail.page.scss"]
 })
 export class OrderDetailPage implements OnInit {
-  data: any;
-  constructor(private modalCtrl: ModalController, params: NavParams) {
-    this.data = params.get("order");
+  data: any = {};
+  constructor(
+    private modalCtrl: ModalController,
+    private navParams: NavParams
+  ) {
+    this.data = this.navParams.get("order");
   }
 
   ngOnInit() {}
 
   onBtnBackClick() {
-    console.log('go back');
+    console.log("go back");
     this.modalCtrl.dismiss();
   }
 }

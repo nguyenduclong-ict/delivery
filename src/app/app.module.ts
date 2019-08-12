@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouteReuseStrategy } from "@angular/router";
 
-import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
+import { IonicModule, IonicRouteStrategy, NavParams } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
 
@@ -21,12 +21,11 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions =
   ConfigService.MQTT_SERVICE_OPTIONS;
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, OrderDetailPage],
   entryComponents: [OrderDetailPage],
   imports: [
     BrowserModule,
     HttpClientModule,
-    OrderDetailPageModule,
     IonicModule.forRoot(),
     MqttModule.forRoot(MQTT_SERVICE_OPTIONS),
     AppRoutingModule,
@@ -39,6 +38,7 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions =
     // BarcodeScanner,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
+  exports: [],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

@@ -1,15 +1,15 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { Routes, RouterModule } from "@angular/router";
 
-import { IonicModule } from '@ionic/angular';
+import { IonicModule } from "@ionic/angular";
 
-import { OrderDetailPage } from './order-detail.page';
+import { OrderDetailPage } from "./order-detail.page";
 
 const routes: Routes = [
   {
-    path: '',
+    path: "",
     component: OrderDetailPage
   }
 ];
@@ -21,6 +21,7 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [OrderDetailPage]
+  declarations: [OrderDetailPage],
+  exports: []
 })
 export class OrderDetailPageModule {}
