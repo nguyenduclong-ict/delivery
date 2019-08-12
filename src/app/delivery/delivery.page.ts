@@ -80,7 +80,7 @@ export class DeliveryPage implements OnInit {
     });
   }
   // Lay danh sach don hang
-  async getListOrderOfShipper(page = 0, loading = true) {
+  async getListOrderOfShipper(page = 0, loading = false) {
     if (!this.shipperNid) return;
     let shipper = this.shipperNid;
     let date = dateFormat(this.date, "yyyy-mm-dd");
@@ -94,8 +94,6 @@ export class DeliveryPage implements OnInit {
           console.log(data);
           if (page == 0) this.orders = [];
           this.orders = [...this.orders, ...data.nodes];
-          if (data.nodes.length == 0 && page != 0)
-            this.presentToast("Không còn dữ liệu");
           resolve(true);
         },
         false,
@@ -120,7 +118,7 @@ export class DeliveryPage implements OnInit {
   async initialize() {
     this.getListShipper();
     this.shipperNid = await this.globalVariables.getShipperNid();
-    this.getListOrderOfShipper();
+    this.getListOrderOfShipper(0, false);
   }
 
   shipperChange(event) {
@@ -131,7 +129,7 @@ export class DeliveryPage implements OnInit {
       action: "CHANGE_SHIPPER_NID",
       data: shipperNid
     });
-    this.getListOrderOfShipper(0);
+    this.getListOrderOfShipper(0, false);
   }
 
   async showOrderDetail(order) {
@@ -271,11 +269,15 @@ export class DeliveryPage implements OnInit {
 
   // Infinite Scroll
   onInfinite(event) {
+    let lenghtBeforeLoad = this.orders.length;
     let nextPage =
       this.orders.length % 10 == 0
         ? this.orders.length / 10
         : this.orders.length / 10 + 1;
     this.getListOrderOfShipper(nextPage, false).then(result => {
+      let lenghtAfterLoad = this.orders.length;
+      if (lenghtBeforeLoad === lenghtAfterLoad)
+        this.presentToast("Đã tải hết tất cả đơn hàng!");
       event.target.complete();
     });
   }

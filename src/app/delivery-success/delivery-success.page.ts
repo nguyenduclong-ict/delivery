@@ -56,7 +56,7 @@ export class DeliverySuccessPage implements OnInit {
     });
   }
   // Lay danh sach don hang
-  async getListOrdersSuccess(page = 0, loading = true) {
+  async getListOrdersSuccess(page = 0, loading = false) {
     let date = dateFormat(this.date, "yyyy-mm-dd");
     let url =
       this.urlListOrderSuccess + `/${this.shipperNid}/${date}?page=${page}`;
@@ -68,10 +68,9 @@ export class DeliverySuccessPage implements OnInit {
         data => {
           if (page == 0) this.orders = [];
           this.orders = [...this.orders, ...data.nodes];
-          if (data.nodes.length == 0) this.presentToast("Không còn dữ liệu");
           resolve(true);
         },
-        false,
+        true,
         loading
       );
     });
@@ -94,7 +93,7 @@ export class DeliverySuccessPage implements OnInit {
   async initialize() {
     await this.getListShipper();
     this.shipperNid = await this.globalVariables.getShipperNid();
-    this.getListOrdersSuccess();
+    this.getListOrdersSuccess(0, false);
   }
 
   //
@@ -102,7 +101,7 @@ export class DeliverySuccessPage implements OnInit {
     if (!event.target.value) return;
     let shipperNid = event.target.value;
     this.shipperNid = shipperNid;
-    this.getListOrdersSuccess(0);
+    this.getListOrdersSuccess(0, false);
   }
 
   //
@@ -180,11 +179,15 @@ export class DeliverySuccessPage implements OnInit {
 
   // Infinite Scroll
   onInfinite(event) {
+    let lenghtBeforeLoad = this.orders.length;
     let nextPage =
       this.orders.length % 10 == 0
         ? this.orders.length / 10
         : this.orders.length / 10 + 1;
     this.getListOrdersSuccess(nextPage, false).then(result => {
+      let lenghtAfterLoad = this.orders.length;
+      if (lenghtBeforeLoad === lenghtAfterLoad)
+        this.presentToast("Đã tải hết tất cả đơn hàng!");
       event.target.complete();
     });
   }

@@ -1,12 +1,17 @@
 import { Injectable } from "@angular/core";
-import { LoadingController, AlertController } from "@ionic/angular";
+import {
+  LoadingController,
+  AlertController,
+  ToastController
+} from "@ionic/angular";
 @Injectable({
   providedIn: "root"
 })
 export class MyLibrariesService {
   constructor(
     private loadingController: LoadingController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastCtrl: ToastController
   ) {}
 
   /**
@@ -36,5 +41,13 @@ export class MyLibrariesService {
       buttons: buttons
     });
     return await alert.present();
+  }
+  async presentToast(message, cssClass = "", duration = 100000) {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: duration,
+      cssClass: cssClass
+    });
+    toast.present();
   }
 }

@@ -78,7 +78,7 @@ export class DeliveryFreePage implements OnInit {
     });
   }
   // Lay danh sach don hang
-  async getListOrdersFree(page = 0, loading = true) {
+  async getListOrdersFree(page = 0, loading = false) {
     let date = dateFormat(this.date, "yyyy-mm-dd");
     let url = `${this.urlListOrderFree}/${date}?page=${page}`;
     console.log(url);
@@ -89,8 +89,6 @@ export class DeliveryFreePage implements OnInit {
         data => {
           if (page == 0) this.orders = [];
           this.orders = [...this.orders, ...data.nodes];
-          if (data.nodes.length == 0 && page != 0)
-            this.presentToast("Không còn dữ liệu");
           resolve(true);
         },
         false,
@@ -116,7 +114,7 @@ export class DeliveryFreePage implements OnInit {
   async initialize() {
     this.shipperNid = await this.globalVariables.getShipperNid();
     await this.getListShipper();
-    await this.getListOrdersFree();
+    await this.getListOrdersFree(0, false);
   }
 
   shipperChange(event) {
@@ -217,11 +215,15 @@ export class DeliveryFreePage implements OnInit {
 
   // Infinite Scroll
   onInfinite(event) {
+    let lenghtBeforeLoad = this.orders.length;
     let nextPage =
       this.orders.length % 10 == 0
         ? this.orders.length / 10
         : this.orders.length / 10 + 1;
     this.getListOrdersFree(nextPage, false).then(result => {
+      let lenghtAfterLoad = this.orders.length;
+      if (lenghtBeforeLoad === lenghtAfterLoad)
+        this.presentToast("Đã tải hết tất cả đơn hàng!");
       event.target.complete();
     });
   }
