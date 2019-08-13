@@ -11,6 +11,7 @@ import { GlobalVariablesService } from "../services/global-variables.service";
 import { BroadcastService } from "../services/broadcast.service";
 import { ChanelService } from "../services/chanel.service";
 import { ResApiService } from "../services/res-api.service";
+import { MqttClientService } from "../services/mqtt-client.service";
 var dateFormat = require("dateformat");
 @Component({
   selector: "app-delivery-free",
@@ -37,7 +38,8 @@ export class DeliveryFreePage implements OnInit {
     private broadcast: BroadcastService,
     private chanel: ChanelService,
     private globalVariables: GlobalVariablesService,
-    private mhttp: ResApiService
+    private mhttp: ResApiService,
+    private myMqtt: MqttClientService
   ) {
     this.urlChangeOrderStatus = this.config.urlChangeOrderStatus;
     this.urlListOrderFree = this.config.urlListOrderFree;

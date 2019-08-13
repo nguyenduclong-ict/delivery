@@ -3,10 +3,9 @@ import { Component, ViewChild, ElementRef } from "@angular/core";
 import { Platform } from "@ionic/angular";
 import { SplashScreen } from "@ionic-native/splash-screen/ngx";
 import { StatusBar } from "@ionic-native/status-bar/ngx";
-import { ConfigService } from "./services/config.service";
 import { GlobalVariablesService } from "./services/global-variables.service";
 import { MqttClientService } from "./services/mqtt-client.service";
-
+import { Device } from "@ionic-native/device/ngx";
 @Component({
   selector: "app-root",
   templateUrl: "app.component.html"
@@ -35,7 +34,8 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private globalVaribles: GlobalVariablesService,
-    private mqttClient: MqttClientService
+    private mqttClient: MqttClientService,
+    private device: Device
   ) {
     this.initializeApp();
   }
@@ -46,7 +46,23 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.statusBar.backgroundColorByHexString("#ffffff");
       this.splashScreen.hide();
+      console.log(cordova.plugins);
+      console.log(this.device.version);
+      if (this.device.version.split(".").shift() < "9") {
+        this.enableBackgroundMode();
+      }
       this.mqttClient.startMqttOnline();
+    });
+  }
+
+  enableBackgroundMode() {
+    let cordovaPlugins: any = cordova.plugins;
+    let bgMode: any = cordovaPlugins.backgroundMode;
+    bgMode.enable();
+    bgMode.on("enable", () => {
+      console.log("background mode activated !!!");
+      bgMode.disableWebViewOptimizations();
+      bgMode.disableBatteryOptimizations();
     });
   }
 }

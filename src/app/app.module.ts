@@ -16,6 +16,8 @@ import { ConfigService } from "./services/config.service";
 import { IMqttMessage, MqttModule, IMqttServiceOptions } from "ngx-mqtt";
 import { OrderDetailPage } from "./order-detail/order-detail.page";
 import { OrderDetailPageModule } from "./order-detail/order-detail.module";
+import { BackgroundMode } from "@ionic-native/background-mode/ngx";
+import { Device } from "@ionic-native/device/ngx";
 
 export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions =
   ConfigService.MQTT_SERVICE_OPTIONS;
@@ -35,6 +37,8 @@ export const MQTT_SERVICE_OPTIONS: IMqttServiceOptions =
     StatusBar,
     SplashScreen,
     Geolocation,
+    Device,
+    BackgroundMode,
     // BarcodeScanner,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

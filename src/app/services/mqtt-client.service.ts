@@ -1,10 +1,7 @@
 import { Injectable } from "@angular/core";
 import { MqttService } from "ngx-mqtt";
-import { BroadcastService } from "./broadcast.service";
-import { ChanelService } from "./chanel.service";
 import { Geolocation } from "@ionic-native/geolocation/ngx";
 import { GlobalVariablesService } from "./global-variables.service";
-
 @Injectable({
   providedIn: "root"
 })
@@ -15,7 +12,18 @@ export class MqttClientService {
     private geolocation: Geolocation,
     private globalVariables: GlobalVariablesService,
     private _mqttService: MqttService
-  ) {}
+  ) {
+    this.watchLocatiton();
+  }
+
+  // function watch location
+  watchLocatiton() {
+    this.geolocation.watchPosition().subscribe(response => {
+      console.log(response);
+      this.location.lat = response.coords.latitude;
+      this.location.lng = response.coords.longitude;
+    });
+  }
 
   // start loop send location to server each 5 seconds
   startMqttOnline() {
@@ -27,23 +35,21 @@ export class MqttClientService {
     clearInterval(this.interval);
   }
 
-  sendLocationToServer = async function() {
+  async sendLocationToServer() {
+    console.log("send Location to Server");
     let shipperNid = await this.globalVariables.getShipperNid();
     if (!shipperNid) return; // Nếu không có shipper nào được chọn thì không cần gửi
 
     // Gửi vị trí lên server MQTT
-    let response: any = await this.geolocation.getCurrentPosition();
-    this.location.lat = response.coords.latitude;
-    this.location.lng = response.coords.longitude;
-
     let data: any = {
       shipperNid: shipperNid,
       location: this.location
     };
 
     let option: any = { qos: 2, retain: false };
+    console.log(data);
     this._mqttService.unsafePublish("/delivery", JSON.stringify(data), option);
-  };
+  }
 
   // Push notification shipper order-change
   mqttShipperChangeOrder(shipperNid) {
