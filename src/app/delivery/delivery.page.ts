@@ -11,6 +11,7 @@ import { ConfigService } from "../services/config.service";
 import { BroadcastService } from "../services/broadcast.service";
 import { ChanelService } from "../services/chanel.service";
 import { ResApiService } from "../services/res-api.service";
+import { MqttClientService } from '../services/mqtt-client.service';
 var dateFormat = require("dateformat");
 
 @Component({
@@ -49,7 +50,8 @@ export class DeliveryPage implements OnInit {
     private config: ConfigService,
     private broadcast: BroadcastService,
     private chanel: ChanelService,
-    private mhttp: ResApiService
+    private mhttp: ResApiService,
+    private myMqtt : MqttClientService
   ) {
     this.urlListShipper = this.config.urlListShipper;
     this.urlListOrderOfShip = this.config.urlListOrderOfShip;
@@ -201,6 +203,7 @@ export class DeliveryPage implements OnInit {
             }
           };
           this.broadcast.pushMessage(this.chanel.DELIVERY_PAGE_CHANEL, message);
+          this.myMqtt.mqttShipperChangeOrder(data.shipperNid);
         } else {
           // Giao đơn thất bại
           this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");
@@ -247,6 +250,7 @@ export class DeliveryPage implements OnInit {
             }
           };
           this.broadcast.pushMessage(this.chanel.DELIVERY_PAGE_CHANEL, message);
+          this.myMqtt.mqttShipperChangeOrder(data.shipperNid);
         } else {
           // Trả đơn thất bại
           this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");

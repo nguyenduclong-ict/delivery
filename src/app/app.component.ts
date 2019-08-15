@@ -46,9 +46,11 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.statusBar.backgroundColorByHexString("#ffffff");
       this.splashScreen.hide();
-      console.log(cordova.plugins);
-      console.log(this.device.version);
-      if (this.device.version.split(".").shift() < "9") {
+      if (
+        (this.platform.is("android") &&
+          this.device.version.split(".").shift() < "9") ||
+        this.platform.is("ios")
+      ) {
         this.enableBackgroundMode();
       }
       this.mqttClient.startMqttOnline();
@@ -56,7 +58,7 @@ export class AppComponent {
   }
 
   enableBackgroundMode() {
-    let cordovaPlugins: any = cordova.plugins;
+    let cordovaPlugins: any = window.cordova.plugins;
     let bgMode: any = cordovaPlugins.backgroundMode;
     bgMode.enable();
     bgMode.on("enable", () => {

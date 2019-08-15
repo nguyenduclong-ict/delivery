@@ -195,6 +195,7 @@ export class DeliveryFreePage implements OnInit {
             this.chanel.DELIVERY_FREE_PAGE_CHANEL,
             message
           );
+          this.myMqtt.mqttShipperChangeOrder(data.shipperNid);
         } else {
           // Nhận đơn thất bại
           this.presentToast("Lỗi, Vui lòng thử lại!", "toast-danger");

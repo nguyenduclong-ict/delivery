@@ -27,6 +27,7 @@ export class MqttClientService {
 
   // start loop send location to server each 5 seconds
   startMqttOnline() {
+    console.log('start mqtt online')
     this.interval = setInterval(this.sendLocationToServer.bind(this), 5000);
   }
 
